@@ -1,0 +1,14 @@
+---
+
+testusers:
+  andy@test.com: apassword
+  ben@test.com: bpassword
+  charlie@test.com: cpassword
+  derek@test.com: dpassword
+  emily@compamy.com: epassword
+  fred@company.com: fpassword
+
+databaseuser: admin
+databasepassword: D0ughnut
+
+

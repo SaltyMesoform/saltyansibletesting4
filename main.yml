@@ -1,0 +1,119 @@
+---
+#- name: test task
+#  hosts: all
+#  become: yes
+#  tasks:
+#    - name: user exists wi
+#      user:
+#        name: newbie
+#        uid: 4000
+#        state: present
+
+
+- name: check db insert works
+  hosts: all
+  vars_files:
+    - vars/vars.yml
+    - vars/secrets.yml
+  roles:
+    - zauberpony.mysql-query
+  vars:
+#    users:
+#      salty@mesoform.com:
+#        password: "newpassword"
+#        fullname: "saltsus millott"
+#      gaz@mesoform.com:
+#        password: "password2"
+#        fullname: "gareth brown"
+#      test@gbmail.com:
+#        password: "password3"
+#        fullname: "test account"
+#      dan@mesoform.com:
+#        password: "password5"
+#        fullname: "daniel perez"
+
+    email_root: /srv/email
+
+
+  tasks:
+#    - name: set mysql connect variable
+#    - mysql_variables:
+
+    - name: insert mesoform.com users into db
+      mysql_query:
+        login_db: saltydb
+        table: passwd2
+        login_host: saltydb3.cljjx3jkbvhq.eu-west-2.rds.amazonaws.com
+        login_port: 3306
+        login_user: "{{databaseuser}}"
+        login_password: "{{databasepassword}}"
+        query:
+          - INSERT INTO passwd2 (id,crypt,clear,name,uid,gid,home,maildir,defaultdelivery,quota,options) VALUES ("{{item.key}}", ENCRYPT ("{{item.value.password}}"), "" , "{{item.value.fullname}}", "476", "2003" , "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}" , "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}" , "", "", "")
+      loop: "{{ lookup('dict', users) }}"
+      when: item.key.split("@")[1] == "mesoform.com"
+
+
+    - name: insert gbmail.me users into db
+      mysql_query:
+        name: saltydb
+        table: passwd
+        login_host: saltydb3.cljjx3jkbvhq.eu-west-2.rds.amazonaws.com
+        login_port: 3306
+        login_user: "{{databaseuser}}"
+        login_password: "{{databasepassword}}"
+        identifiers:
+          id: "{{item.key}}"
+        values:
+          crypt: "{{item.value.password }}"
+          clear: ""
+          name: "{{item.value.fullname}}"
+          uid: 476
+          gid: 2002
+          home: "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}"
+          maildir: "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}"
+          defaultdelivery: ""
+          quota: ""
+          options: ""
+      loop: "{{ lookup('dict', users) }}"
+      when: item.key.split("@")[1] == "gbmail.com"
+
+
+
+
+
+
+
+
+### from trello
+###  users stored in this file roles/email.gbweb.net/vars/users.yml in the format username:password
+### create the sql insert variables colums id , crypt, clear, name,muid, gid, home, maildir, defaultdeliver, quota, options
+
+#- name: split variables to create
+#  hosts: all
+#  vars:
+#    newusers: {}
+#    users:
+#      salty@mesoform.com:
+#        password: password
+#        fullname: "saltsus millott"
+#      gaz@mesoform.com:
+#        password: password2
+#        fullname: "gareth brown"
+#        password: password2
+#
+#      test@gbmail.com: password3
+#  tasks:
+#    - name: get local domain part
+#      set_fact:
+#        localpart: "{{ key.split('@')[0] }}"
+#      loop: "{{ users | dict2items }}"
+#    - debug:
+#        var: localpart
+
+
+
+
+
+#    - name: gid for each dict item
+
+#    - name: home for each dict item
