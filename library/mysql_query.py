@@ -5,7 +5,17 @@
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import (absolute_import, division, print_function)
+
 __metaclass__ = type
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.mysql import (
+    mysql_connect,
+    mysql_common_argument_spec,
+    mysql_driver,
+    mysql_driver_fail_msg,
+)
+from ansible.module_utils._text import to_native
 
 ANSIBLE_METADATA = {
     'metadata_version': '1.1',
@@ -106,15 +116,6 @@ rowcount:
     sample: [5, 1]
 '''
 
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.mysql import (
-    mysql_connect,
-    mysql_common_argument_spec,
-    mysql_driver,
-    mysql_driver_fail_msg,
-)
-from ansible.module_utils._text import to_native
-
 DML_QUERY_KEYWORDS = ('INSERT', 'UPDATE', 'DELETE')
 # TRUNCATE is not DDL query but it also returns 0 rows affected:
 DDL_QUERY_KEYWORDS = ('CREATE', 'DROP', 'ALTER', 'RENAME', 'TRUNCATE')
@@ -131,7 +132,6 @@ def main():
         login_db=dict(type='str'),
         positional_args=dict(type='list'),
         named_args=dict(type='dict'),
-        single_transaction=dict(type='bool', default=False),
     )
 
     module = AnsibleModule(
@@ -150,10 +150,6 @@ def main():
     ssl_ca = module.params['ca_cert']
     config_file = module.params['config_file']
     query = module.params["query"]
-    if module.params["single_transaction"]:
-        autocommit = False
-    else:
-        autocommit = True
     # Prepare args:
     if module.params.get("positional_args"):
         arguments = module.params["positional_args"]
@@ -166,11 +162,12 @@ def main():
         module.fail_json(msg=mysql_driver_fail_msg)
 
     # Connect to DB:
+    cursor = None
     try:
-        cursor, db_connection = mysql_connect(module, login_user, login_password,
-                                              config_file, ssl_cert, ssl_key, ssl_ca, db,
-                                              connect_timeout=connect_timeout,
-                                              cursor_class='DictCursor', autocommit=autocommit)
+        cursor = mysql_connect(module, login_user, login_password,
+                               config_file, ssl_cert, ssl_key, ssl_ca, db,
+                               connect_timeout=connect_timeout,
+                               cursor_class='DictCursor')
     except Exception as e:
         module.fail_json(msg="unable to connect to database, check login_user and "
                              "login_password are correct or %s has the credentials. "
@@ -187,20 +184,14 @@ def main():
     for q in query:
         try:
             cursor.execute(q, arguments)
-
         except Exception as e:
-            if not autocommit:
-                db_connection.rollback()
-
             cursor.close()
-            module.fail_json(msg="Cannot execute SQL '%s' args [%s]: %s" % (q, arguments, to_native(e)))
+            module.fail_json(
+                msg="Cannot execute SQL '%s' args [%s]: %s" % (q, arguments, to_native(e)))
 
         try:
             query_result.append([dict(row) for row in cursor.fetchall()])
-
         except Exception as e:
-            if not autocommit:
-                db_connection.rollback()
 
             module.fail_json(msg="Cannot fetch rows from cursor: %s" % to_native(e))
 
@@ -216,10 +207,6 @@ def main():
 
         executed_queries.append(cursor._last_executed)
         rowcount.append(cursor.rowcount)
-
-    # When the module run with the single_transaction == True:
-    if not autocommit:
-        db_connection.commit()
 
     # Create dict with returned values:
     kw = {
