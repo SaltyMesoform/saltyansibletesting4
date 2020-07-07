@@ -38,7 +38,7 @@
   tasks:
 #    - name: set mysql connect variable
 #    - mysql_variables:
-
+#  new insert using
     - name: insert mesoform.com users into db
       mysql_query:
         login_db: saltydb
