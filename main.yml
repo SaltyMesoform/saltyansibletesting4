@@ -15,8 +15,8 @@
   vars_files:
     - vars/vars.yml
     - vars/secrets.yml
-  roles:
-    - zauberpony.mysql-query
+#  roles:
+#    - zauberpony.mysql-query
   vars:
 #    users:
 #      salty@mesoform.com:
@@ -38,7 +38,7 @@
   tasks:
 #    - name: set mysql connect variable
 #    - mysql_variables:
-
+#  new insert using
     - name: insert mesoform.com users into db
       mysql_query:
         login_db: saltydb
@@ -52,30 +52,30 @@
       loop: "{{ lookup('dict', users) }}"
       when: item.key.split("@")[1] == "mesoform.com"
 
-
-    - name: insert gbmail.me users into db
-      mysql_query:
-        name: saltydb
-        table: passwd
-        login_host: saltydb3.cljjx3jkbvhq.eu-west-2.rds.amazonaws.com
-        login_port: 3306
-        login_user: "{{databaseuser}}"
-        login_password: "{{databasepassword}}"
-        identifiers:
-          id: "{{item.key}}"
-        values:
-          crypt: "{{item.value.password }}"
-          clear: ""
-          name: "{{item.value.fullname}}"
-          uid: 476
-          gid: 2002
-          home: "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}"
-          maildir: "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}"
-          defaultdelivery: ""
-          quota: ""
-          options: ""
-      loop: "{{ lookup('dict', users) }}"
-      when: item.key.split("@")[1] == "gbmail.com"
+### previous code
+#    - name: insert gbmail.me users into db
+#      mysql_query:
+#        name: saltydb
+#        table: passwd
+#        login_host: saltydb3.cljjx3jkbvhq.eu-west-2.rds.amazonaws.com
+#        login_port: 3306
+#        login_user: "{{databaseuser}}"
+#        login_password: "{{databasepassword}}"
+#        identifiers:
+#          id: "{{item.key}}"
+#        values:
+#          crypt: "{{item.value.password }}"
+#          clear: ""
+#          name: "{{item.value.fullname}}"
+#          uid: 476
+#          gid: 2002
+#          home: "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}"
+#          maildir: "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}"
+#          defaultdelivery: ""
+#          quota: ""
+#          options: ""
+#      loop: "{{ lookup('dict', users) }}"
+#      when: item.key.split("@")[1] == "gbmail.com"
 
 
 
