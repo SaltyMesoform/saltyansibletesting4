@@ -208,6 +208,8 @@ def main():
         executed_queries.append(cursor._last_executed)
         rowcount.append(cursor.rowcount)
 
+    cursor.execute("commit;", arguments)
+    cursor.close()
     # Create dict with returned values:
     kw = {
         'changed': changed,
