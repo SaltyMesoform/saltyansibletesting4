@@ -43,10 +43,10 @@
 #    - mysql_variables:
 #  new insert using
     - name: insert mesoform.com users into db
-      community.mysql.mysql_query:
-        login_db: saltydb
-        login_host: saltydb3.cljjx3jkbvhq.eu-west-2.rds.amazonaws.com
-        login_port: 3306
+      mysql_query:
+        login_db: "{{databasename}}"
+        login_host: "{{databasehost}}"
+        login_port: "{{databaseport}}"
         login_user: "{{databaseuser}}"
         login_password: "{{databasepassword}}"
         query:

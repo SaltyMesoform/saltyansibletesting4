@@ -10,6 +10,9 @@ testusers:
 
 databaseuser: admin
 databasepassword: D0ughnut
+databasehost: saltydb3.cljjx3jkbvhq.eu-west-2.rds.amazonaws.com
+databaseport: 3306
+databasename: saltydb
 
 email_root: /srv/email
 
