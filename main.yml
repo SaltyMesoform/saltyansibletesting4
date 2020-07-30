@@ -15,6 +15,9 @@
   vars_files:
     - vars/vars.yml
     - vars/secrets.yml
+
+  collections:
+    - community.mysql
 #  roles:
 #    - zauberpony.mysql-query
   vars:
@@ -32,7 +35,7 @@
 #        password: "password5"
 #        fullname: "daniel perez"
 
-    email_root: /srv/email
+
 
 
   tasks:
@@ -40,7 +43,7 @@
 #    - mysql_variables:
 #  new insert using
     - name: insert mesoform.com users into db
-      mysql_query:
+      community.mysql.mysql_query:
         login_db: saltydb
         login_host: saltydb3.cljjx3jkbvhq.eu-west-2.rds.amazonaws.com
         login_port: 3306

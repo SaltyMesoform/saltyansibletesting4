@@ -11,4 +11,6 @@ testusers:
 databaseuser: admin
 databasepassword: D0ughnut
 
+email_root: /srv/email
+
 
