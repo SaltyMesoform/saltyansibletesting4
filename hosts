@@ -1,5 +1,5 @@
 [awshosts]
-ec2-52-56-218-239.eu-west-2.compute.amazonaws.com ansible_ssh_private_key_file=~/.ssh/SaltyAWStest.pem
+ec2-35-178-212-191.eu-west-2.compute.amazonaws.com ansible_ssh_private_key_file=~/.ssh/SaltyAWStest.pem
 
 
 

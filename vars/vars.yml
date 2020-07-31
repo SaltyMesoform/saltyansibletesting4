@@ -1,14 +1,15 @@
 ---
 
-testusers:
-  andy@test.com: apassword
-  ben@test.com: bpassword
-  charlie@test.com: cpassword
-  derek@test.com: dpassword
-  emily@compamy.com: epassword
-  fred@company.com: fpassword
+# databaseuser: admin
+# databasepassword: D0ughnut
+databaseuser: saltytest4
+databasepassword: password
+databasehost: saltydb3.cljjx3jkbvhq.eu-west-2.rds.amazonaws.com
+databaseport: 3306
+databasename: saltydb
 
-databaseuser: admin
-databasepassword: D0ughnut
+aws_ca_key: /home/ec2-user/.ssh/rds-ca-2019-root.pem
+
+email_root: /srv/email
 
 
