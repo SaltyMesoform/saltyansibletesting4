@@ -34,15 +34,29 @@
 #      dan@mesoform.com:
 #        password: "password5"
 #        fullname: "daniel perez"
-
-
-
-
   tasks:
+    - name: download pem key to instance from AWS
+      get_url:
+        url: https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
+        dest: "{{aws_ca_key}}"
+
+#    - name: ensure mysql entry into my.cnf file
+#      lineinfile:
+#        path: /etc/my.cnf
+#        line: [myslq]
+
+    - name: insert key into my.cnf file
+      ini_file: dest=/home/ec2-user/.my.cnf section=client option=ssl-ca value="{{aws_ca_key}}"
+
+
+
+
+
 #    - name: set mysql connect variable
 #    - mysql_variables:
 #  new insert using
     - name: insert mesoform.com users into db
+      become: False
       mysql_query:
         login_db: "{{databasename}}"
         login_host: "{{databasehost}}"
