@@ -1,14 +1,4 @@
 ---
-#- name: test task
-#  hosts: all
-#  become: yes
-#  tasks:
-#    - name: user exists wi
-#      user:
-#        name: newbie
-#        uid: 4000
-#        state: present
-
 
 - name: check db insert works
   hosts: all
@@ -18,43 +8,20 @@
 
   collections:
     - community.mysql
-#  roles:
-#    - zauberpony.mysql-query
+
   vars:
-#    users:
-#      salty@mesoform.com:
-#        password: "newpassword"
-#        fullname: "saltsus millott"
-#      gaz@mesoform.com:
-#        password: "password2"
-#        fullname: "gareth brown"
-#      test@gbmail.com:
-#        password: "password3"
-#        fullname: "test account"
-#      dan@mesoform.com:
-#        password: "password5"
-#        fullname: "daniel perez"
+
   tasks:
     - name: download pem key to instance from AWS
       get_url:
         url: https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem
         dest: "{{aws_ca_key}}"
 
-#    - name: ensure mysql entry into my.cnf file
-#      lineinfile:
-#        path: /etc/my.cnf
-#        line: [myslq]
 
     - name: insert key into my.cnf file
       ini_file: dest=/home/ec2-user/.my.cnf section=client option=ssl-ca value="{{aws_ca_key}}"
 
 
-
-
-
-#    - name: set mysql connect variable
-#    - mysql_variables:
-#  new insert using
     - name: insert mesoform.com users into db
       become: False
       mysql_query:
@@ -67,6 +34,19 @@
           - INSERT INTO passwd2 (id,crypt,clear,name,uid,gid,home,maildir,defaultdelivery,quota,options) VALUES("{{item.key}}", SHA2("{{item.value.password}}", 256), "" , "{{item.value.fullname}}", "476", "2003" , "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}" , "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}" , "", "", "")
       loop: "{{ lookup('dict', users) }}"
       when: item.key.split("@")[1] == "mesoform.com"
+
+    - name: insert mesoform.com users into db
+      become: False
+      mysql_query:
+        login_db: "{{databasename}}"
+        login_host: "{{databasehost}}"
+        login_port: "{{databaseport}}"
+        login_user: "{{databaseuser}}"
+        login_password: "{{databasepassword}}"
+        query:
+          - INSERT INTO passwd2 (id,crypt,clear,name,uid,gid,home,maildir,defaultdelivery,quota,options) VALUES("{{item.key}}", SHA2("{{item.value.password}}", 256), "" , "{{item.value.fullname}}", "476", "2002" , "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}" , "{{email_root}}/{{ item.key.split('@')[1] }}/{{ item.key.split('@')[0] }}" , "", "", "")
+      loop: "{{ lookup('dict', users) }}"
+      when: item.key.split("@")[1] == "gbmail.com"
 
 
 #    - name: insert gbmail.me users into db
